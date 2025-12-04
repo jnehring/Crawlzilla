@@ -1,10 +1,14 @@
-# Dataset Card for Crawlzilla Monolingual Corpus
+# Dataset Card for Crawlzilla Corpus
 
 ## Dataset Description
 
 ### Dataset Summary
 
-The Crawlzilla Monolingual Corpus is a collection of web-crawled text data specifically designed for training Large Language Models (LLMs) on low-resource African languages. The dataset is generated using the [Crawlzilla](https://github.com/jnehring/crawlzilla) web crawler, which implements ethical and friendly crawling practices.
+The Crawlzilla Corpus is a collection of web-crawled text data for training Large Language Models (LLMs) on 8 African languages. The dataset is generated using the [Crawlzilla](https://github.com/jnehring/crawlzilla) web crawler by the Mbaza community. This dataset aims to:
+
+- **Democratize AI**: Enable LLM development for underrepresented African languages
+- **Preserve Languages**: Create digital resources for languages with limited online presence
+- **Support Research**: Provide training data for NLP research in low-resource settings
 
 The first published outcome of this project is the [Mbaza Monolingual Corpus 1.1](https://huggingface.co/datasets/mbazaNLP/kinyarwanda_monolingual_v01.1). This dataset is the extended version.
 
@@ -51,25 +55,3 @@ The data was crawled from public sources using the [Crawlzilla](https://github.c
 - **Crawl Delay**: Implements configurable delays between requests (default: 1 second)
 - **Rate Limiting**: Never downloads multiple pages from the same domain simultaneously
 - **User-Agent Identification**: Identifies itself as `Crawlzilla/1.0`
-
-## Considerations for Using the Data
-
-### Social Impact
-
-This dataset aims to:
-- **Democratize AI**: Enable LLM development for underrepresented African languages
-- **Preserve Languages**: Create digital resources for languages with limited online presence
-- **Support Research**: Provide training data for NLP research in low-resource settings
-
-### Limitations
-
-- **Web Bias**: Data reflects the content available on the web, which may not represent all language varieties or registers
-- **Quality Variance**: Despite filtering, some noise may remain in the data
-- **Temporal Snapshot**: Data represents a point-in-time snapshot of web content
-- **Domain Distribution**: Certain domains or topics may be overrepresented
-
-### Ethical Considerations
-
-- **Copyright**: Web-crawled data may include copyrighted content; users should consider fair use implications
-- **Privacy**: While the crawler respects robots.txt, some personal information may be present
-- **Bias**: Web content may contain biases that could be learned by models trained on this data
