@@ -12,16 +12,17 @@ The first published outcome of this project is the [Mbaza Monolingual Corpus 1.1
 
 The dataset supports multiple African languages, identified using ISO 639-3 language codes and ISO 15924 script codes:
 
-| ISO 639-3 Code   | Script (ISO 15924 Code)   |   Num words [Mio] |   Num characters [Mio] |   Num sentences [Mio] | Language    |
-|:-----------------|:--------------------------|------------------:|-----------------------:|----------------------:|:------------|
-| afr              | Latn                      |           94.3124 |                557.347 |               5.78757 | Afrikaans   |
-| hau              | Latn                      |          106.532  |                598.035 |               4.99128 | Hausa       |
-| swh              | Latn                      |          123.031  |                786.161 |               6.87675 | Swahili     |
-| amh              | Ethi                      |           88.4559 |                455.751 |               3.56739 | Amharic     |
-| som              | Latn                      |          128.155  |                842.004 |               6.31182 | Somali      |
-| xho              | Latn                      |           39.1105 |                351.979 |               3.08705 | Xhosa       |
-| yor              | Latn                      |           45.549  |                253.041 |               1.68044 | Yoruba      |
-| kin              | Latn                      |           53.0348 |                388.808 |               2.84802 | Kinyarwanda |
+| Language    | ISO 639-3 Code   | Script (ISO 15924 Code)   |   Num words [Mio] |   Num characters [Mio] |   Num sentences [Mio] |
+|:------------|:-----------------|:--------------------------|------------------:|-----------------------:|----------------------:|
+| Afrikaans   | afr              | Latn                      |           94.3124 |                557.347 |               5.78757 |
+| Hausa       | hau              | Latn                      |          106.532  |                598.035 |               4.99128 |
+| Swahili     | swh              | Latn                      |          123.031  |                786.161 |               6.87675 |
+| Amharic     | amh              | Ethi                      |           88.4559 |                455.751 |               3.56739 |
+| Somali      | som              | Latn                      |          128.155  |                842.004 |               6.31182 |
+| Xhosa       | xho              | Latn                      |           39.1105 |                351.979 |               3.08705 |
+| Yoruba      | yor              | Latn                      |           45.549  |                253.041 |               1.68044 |
+| Kinyarwanda | kin              | Latn                      |           53.0348 |                388.808 |               2.84802 |
+| Total       | -                | -                         |          678.182  |               4233.13  |              35.1503  |
 
 ### Dataset Structure
 
