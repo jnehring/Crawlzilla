@@ -14,7 +14,8 @@ import pyarrow.parquet as pq
 from typing import List
 import shutil
 import pyarrow.dataset as ds
-import numpy as np
+import sys
+import glob
 
 # parse command line arguments
 def parse_args():
@@ -22,9 +23,8 @@ def parse_args():
                         prog='Crawlzilla Dataset Generator',
                         description='Generate a Parquet dataset from all crawls.')
     
-    parser.add_argument('--input_folder', default="../outputs/", type=str, help="folder in which the input data is stored. by default, this is ../outputs")
-    parser.add_argument('--output_folder', default="../outputs/final_dataset", type=str, help="Folder in which the output data is stored. by default, this is ../outputs/final_dataset")
-    parser.add_argument('--languages', default=None, type=str, help="Limit to certain languages. You can comma-separate the languages, e.g., kin_Latn,hau_Arab")
+    parser.add_argument('--input_folder', default="extractor_output", type=str, help="folder in which the input data is stored. by default, this is ../outputs")
+    parser.add_argument('--output_folder', default="final_dataset", type=str, help="Folder in which the output data is stored. by default, this is ../outputs/final_dataset")
     parser.add_argument('--batch_size', default=500000, type=int, help="Number of samples in each batch. Default is 500.000 which writes batches of about 40MB to disk.")
 
     return parser.parse_args()
@@ -32,27 +32,31 @@ def parse_args():
 # iterate over all data files and yield batches
 def iterate_over_files(args):
     batch = []
-    for folder in os.listdir(args.input_folder):
-        if args.languages is not None and folder not in args.languages:
-            print(f"skip folder {os.path.join(args.input_folder, folder)}")
-            continue
-        
+    for iso2_lang in os.listdir(args.input_folder):
         dedub = []
-        infolder = os.path.join(args.input_folder, folder, "textual_outputs")
-        if not os.path.exists(infolder):
-            print(f'skip folder {infolder}')
-            continue
 
-        infiles = os.listdir(os.path.join(infolder))
+        infiles = glob.glob(os.path.join(args.input_folder, iso2_lang, '*/*'))
+
+        language_mapping = {'af': 'afr',
+            'am': 'amh',
+            'ha': 'hau',
+            'rw': 'kin',
+            'so': 'som',
+            'sw': 'swa',
+            'xh': 'xho',
+            'yo': 'yor'}
+
+        assert iso2_lang in language_mapping.keys()
+        iso3_lang = language_mapping[iso2_lang]
 
         pbar = tqdm(total=len(infiles))
-        language, script = folder.split("_")
+        
         dedups = set()
 
-        print(f"reading {len(infiles)} files from folder {folder}")
+        print(f"reading {len(infiles)} files from folder {os.path.join(args.input_folder, iso2_lang)}")
 
         for file in infiles:
-            with open(os.path.join(args.input_folder, infolder, file)) as f:
+            with open(file) as f:
                 for line in f:
                     h = hash(line)
                     if h in dedups:
@@ -62,8 +66,7 @@ def iterate_over_files(args):
 
                     batch.append({
                         "text": line[0:-1],
-                        "language": language,
-                        "script": script
+                        "language": iso3_lang,
                     })
 
 
@@ -85,7 +88,6 @@ def create_parquet_schema(folder):
     schema = pa.schema([
         ("text", pa.large_string()),
         ("language", pa.dictionary(pa.int8(), pa.string())),  # efficient tiny codes
-        ("script", pa.dictionary(pa.int8(), pa.string())),
     ])
     common_meta_path = os.path.join(folder, "_common_metadata")
     meta_path = os.path.join(folder, "_metadata")
@@ -101,14 +103,13 @@ def write_batch(folder : str, batch : List, batch_number : int):
     table = pa.table({
         "text": pa.array([row['text'] for row in batch], type=pa.large_string()),
         "language": pa.array([row['language'] for row in batch], type=pa.dictionary(pa.int8(), pa.string())),
-        "script": pa.array([row['script'] for row in batch], type=pa.dictionary(pa.int8(), pa.string())),
     })
 
     writer = pq.ParquetWriter(
         os.path.join(folder, f"part-{batch_number:05d}.parquet"),
         schema=table.schema,
         compression="zstd",
-        use_dictionary=["language", "script"],
+        use_dictionary=["language"],
         write_statistics=True,
     )
     writer.write_table(table)
@@ -125,11 +126,10 @@ def create_stats(args, dataset_folder):
     for batch in dataset.to_batches():
         for row in batch.to_pylist():
 
-            key = row['language'] + "_" + row['script']
+            key = row['language']
             if key not in stats:
                 stats[key] = {
                     "language": row['language'],
-                    "script": row['script'],
                     "characters": 0,
                     "sentences": 0,
                     "words": 0,
@@ -149,7 +149,6 @@ def create_stats(args, dataset_folder):
     for s in stats.values():
         language_stats = {
             "language": s['language'],
-            "script": s['script'],
             "words": s['words'],
             "characters": s['characters'],
             "sentences": s['sentences']
@@ -186,12 +185,11 @@ def main():
         shutil.rmtree(args.output_folder)
     os.makedirs(args.output_folder)
 
-    dataset_folder = os.path.join(args.output_folder, "dataset")
+    dataset_folder = os.path.join(args.output_folder)
     schema = create_parquet_schema(dataset_folder)
     i = 0
     all_stats = {}
     for batch in iterate_over_files(args):
-        batch = np.shuffle(batch)
         write_batch(dataset_folder, batch, i)
         i += 1
 
